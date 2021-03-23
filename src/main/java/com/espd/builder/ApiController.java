@@ -255,7 +255,7 @@ public class ApiController {
      * Receives an espd request in json format from the frontend
      * and generates an official espd request document ,with certain criteria selected , formated as xml or pdf or html
      */
-    @GetMapping(path = "/exportEspdRequestDocument")
+    @PostMapping(path = "/exportEspdRequestDocument")
     public String getEspdRequestDoc(@RequestBody ESPDRequestImpl espdRequest ){
 
         //just trying to serialize request body parameter --> ESPDRequestImpl espdRequest
