@@ -18,6 +18,9 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	compile 'eu.espdint.espdvcd:builder:2.1.0'
 	implementation group: 'org.json', name: 'json', version: '20210307'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.4'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.4.4'
+	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.23'
 }
 
 configurations {
