@@ -1,8 +1,10 @@
-package com.espd.builder;
+package com.espd.builder.controller;
 
-import java.lang.reflect.Field;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
+import com.espd.builder.model.User;
 import eu.esens.espdvcd.builder.exception.BuilderException;
 import eu.esens.espdvcd.codelist.Codelists;
 import eu.esens.espdvcd.codelist.CodelistsV1;
@@ -12,6 +14,11 @@ import eu.esens.espdvcd.model.ESPDRequestImpl;
 import eu.esens.espdvcd.model.SelectableCriterion;
 import eu.esens.espdvcd.retriever.criteria.CriteriaExtractor;
 import eu.esens.espdvcd.retriever.exception.RetrieverException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import eu.esens.espdvcd.builder.*;
 
@@ -25,6 +32,9 @@ import eu.esens.espdvcd.retriever.criteria.RegulatedCriteriaExtractorBuilder;
 @RestController
 @RequestMapping(path="/api")
 public class ApiController {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     /**
      * CRITERIA ENDPOINTS
@@ -263,6 +273,48 @@ public class ApiController {
         //NOT WORKING
         return "success";
     }
+
+    /**
+     * ENDPOINTS FOR INTERACTION WITH DB
+     */
+
+    /**
+     * ENDPOINT
+     * Create new user
+     * This is the only endpoint that does not have to be secured (no user authentication needed)
+     */
+    @PostMapping(path = "/users/createNewUser")
+    public String createUser(@RequestBody User user ){
+
+        //Check if username is available ( Maybe someone else has this username)
+        List<User> usersList = this.jdbcTemplate.query(
+                "select username from users",
+                new RowMapper<User>() {
+                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                        User user = new User();
+                        user.setUsername(rs.getString("username"));
+                        return user;
+                    }
+                });
+
+        //if username is not available
+        for(User userInList : usersList){
+            if( userInList.getUsername().equals(user.getUsername()) ){
+                return "user with given username already exists";
+            }
+        }
+
+        //if username is available
+        BCryptPasswordEncoder bCryptPasswordEncodernew = new BCryptPasswordEncoder();
+        String encryptedPassword = bCryptPasswordEncodernew.encode(user.getPassword());
+
+        jdbcTemplate.update("insert into users (username,password,role,enabled) values(?,?,?,?)", user.getUsername(), encryptedPassword, "ROLE_USER", 1);
+
+        return "successfully created user";
+
+    }
+
+
 
     /**
      * TEST ENDPOINTS
