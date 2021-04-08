@@ -1,5 +1,7 @@
 package com.espd.builder.controller;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -9,14 +11,16 @@ import eu.esens.espdvcd.builder.exception.BuilderException;
 import eu.esens.espdvcd.codelist.Codelists;
 import eu.esens.espdvcd.codelist.CodelistsV1;
 import eu.esens.espdvcd.codelist.CodelistsV2;
+import eu.esens.espdvcd.codelist.enums.EULanguageCodeEnum;
 import eu.esens.espdvcd.model.ESPDRequest;
 import eu.esens.espdvcd.model.ESPDRequestImpl;
 import eu.esens.espdvcd.model.SelectableCriterion;
 import eu.esens.espdvcd.retriever.criteria.CriteriaExtractor;
 import eu.esens.espdvcd.retriever.exception.RetrieverException;
+import eu.esens.espdvcd.transformation.TransformationService;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +29,11 @@ import eu.esens.espdvcd.builder.*;
 
 import eu.esens.espdvcd.schema.enums.EDMVersion;
 import eu.esens.espdvcd.retriever.criteria.RegulatedCriteriaExtractorBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
-/**
- * This API helps its users to create regulated v1 or regulated v2 Espd Request Documents
- */
+import javax.xml.transform.stream.StreamSource;
+
+
 @RestController
 @RequestMapping(path="/api")
 public class ApiController {
@@ -42,7 +47,7 @@ public class ApiController {
 
     /**
      *   ENDPOINT
-     *  get a list which contains all criteria types (typeCodes) , based on espd regulated request document version
+     *  get a list which contains all criteria types (typeCodes) , based on espd regulated request document model version
      */
     @GetMapping(path = "/criteria/regulated/{version}/typesOfCriteria")
     public ArrayList<String> typesOfCriteria(@PathVariable String  version) throws RetrieverException {
@@ -89,7 +94,7 @@ public class ApiController {
 
     /**
      * ENDPOINT
-     *  get criteria list , based on espd regulated request document version
+     *  get criteria list , based on espd regulated request document model version
      */
     @GetMapping(path = "/criteria/regulated/{version}/getList")
     public List<SelectableCriterion> getList(@PathVariable String  version) throws RetrieverException {
@@ -259,20 +264,112 @@ public class ApiController {
         }
 
     /**
+     * ENPOINTS to import and export Espd Requests
+      */
+
+    /**
      * ENDPOINT
      *
-     * Espd Request creation and extraction endpoint.
+     * Espd Request extraction endpoint.
      * Receives an espd request in json format from the frontend
-     * and generates an official espd request document ,with certain criteria selected , formated as xml or pdf or html
+     * and generates an official espd request document  , formated as xml or pdf or html .
+     * generated file gets downloaded automatically
      */
-    @PostMapping(path = "/exportEspdRequestDocument")
-    public String getEspdRequestDoc(@RequestBody ESPDRequestImpl espdRequest ){
+    @PostMapping(path = "/exportEspdRequestDocument/regulated/{version}/{exportFormat}")
+    public String getEspdRequestDoc(@RequestBody ESPDRequestImpl espdRequest , @PathVariable String exportFormat ,@PathVariable String version ) throws IOException {
 
-        //just trying to serialize request body parameter --> ESPDRequestImpl espdRequest
-        //and return "success" if everything goes well
-        //NOT WORKING
-        return "success";
+
+        if(version.equals("v1")) {
+            switch (exportFormat) {
+                case "xml":
+                    File targetFile2 = new File("C:\\Downloads\\espd-request-regulated-v1.xml");
+                    FileUtils.copyInputStreamToFile(new XMLDocumentBuilderV1(espdRequest).getAsInputStream(), targetFile2);
+                    return "xml file downloaded successfully";
+                case "html":
+                    String theXML = BuilderFactory.EDM_V1.createXMLDocumentBuilderFor(espdRequest).getAsString();
+                    TransformationService transformationService1 = new TransformationService();
+                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
+                    File targetFile1 = new File("C:\\Downloads\\espd-request-regulated-v1.html");
+                    FileUtils.copyInputStreamToFile(htmlStream, targetFile1);
+                    return "html file downloaded successfully";
+                case "pdf":
+                    PDFDocumentBuilderV1 pdfDocumentBuilderV1 = BuilderFactory.EDM_V1
+                            .createPDFDocumentBuilderFor(espdRequest);
+                    TransformationService transformationService = new TransformationService();
+                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV1.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
+                    File targetFile = new File("C:\\Downloads\\espd-request-regulated-v1.pdf");
+                    FileUtils.copyInputStreamToFile(pdfStream, targetFile);
+                    return "pdf file downloaded successfully";
+            }
+        }else if (version.equals("v2")){
+            switch (exportFormat) {
+                case "xml":
+                    File targetFile2 = new File("C:\\Downloads\\espd-request-regulated-v2.xml");
+                    FileUtils.copyInputStreamToFile(new XMLDocumentBuilderV2(espdRequest).getAsInputStream(), targetFile2);
+                    return "xml file downloaded successfully";
+                case "html":
+                    String theXML = BuilderFactory.EDM_V2.createXMLDocumentBuilderFor(espdRequest).getAsString();
+                    TransformationService transformationService1 = new TransformationService();
+                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
+                    File targetFile1 = new File("C:\\Downloads\\espd-request-regulated-v2.html");
+                    FileUtils.copyInputStreamToFile(htmlStream, targetFile1);
+                    return "html file downloaded successfully";
+                case "pdf":
+                    PDFDocumentBuilderV2 pdfDocumentBuilderV2 = BuilderFactory.EDM_V2
+                            .createPDFDocumentBuilderFor(espdRequest);
+                    TransformationService transformationService = new TransformationService();
+                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV2.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
+                    File targetFile = new File("C:\\Downloads\\espd-request-regulated-v2.pdf");
+                    FileUtils.copyInputStreamToFile(pdfStream, targetFile);
+                    return "pdf file downloaded successfully";
+            }
+        }
+
+        return "wrong export format path parameter , or version path parameter";
     }
+
+    /**
+     * ENDPOINT
+     *
+     * Import an espd request .xml file and convert it to json format
+     */
+    @PostMapping(path = "/importEspdRequestDocument/regulated/{version}" , consumes = "multipart/form-data")
+    public ESPDRequest importEspdxmlFile(@PathVariable String version , @RequestParam("file") MultipartFile file) throws FileNotFoundException, BuilderException, RetrieverException {
+
+        //convert MultipartFile to File
+        String fileName = file.getOriginalFilename();
+        String prefix = fileName.substring(fileName.lastIndexOf("."));
+
+        File convertedFile = null;
+        try {
+            convertedFile = File.createTempFile(fileName, prefix);
+            file.transferTo(convertedFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //return a json represantation of the content of this file
+        InputStream inputStream = new FileInputStream(convertedFile);
+
+        if(version.equals("v1")){
+            ESPDRequest espdRequest = BuilderFactory.EDM_V1.createRegulatedModelBuilder().importFrom(inputStream).createESPDRequest();
+            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
+
+            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
+
+            return espdRequest;
+        }else if(version.equals("v2")){
+            ESPDRequest espdRequest = BuilderFactory.EDM_V2.createRegulatedModelBuilder().importFrom(inputStream).createESPDRequest();
+            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
+
+            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
+
+            return espdRequest;
+        }
+
+        return null;
+    }
+
 
     /**
      * ENDPOINTS FOR INTERACTION WITH DB
@@ -353,6 +450,42 @@ public class ApiController {
     }
 
 
+    /**
+     * ENDPOINT
+     *
+     * Import espd file from resources and convert it to json
+     * WORKS
+     */
+    @GetMapping(path = "/importEspdRequestDocumentFromResources/regulated/{version}")
+    public ESPDRequest importEspd(@PathVariable String version) throws RetrieverException, BuilderException {
+
+
+        if(version.equals("v1")) {
+            ESPDRequest espdRequest = BuilderFactory.EDM_V1
+                    .createRegulatedModelBuilder()
+                    .importFrom(ApiController.class.getResourceAsStream("/artefacts/regulated-v1-1.xml"))
+                    .createESPDRequest();
+
+            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
+
+            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
+
+            return espdRequest;
+        }else if (version.equals("v2")){
+            ESPDRequest espdRequest = BuilderFactory.EDM_V2
+                    .createRegulatedModelBuilder()
+                    .importFrom(ApiController.class.getResourceAsStream("/artefacts/regulated-v2-1.xml"))
+                    .createESPDRequest();
+
+            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
+
+            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
+
+            return espdRequest;
+        }
+
+        return null;
+    }
 
 
 }
