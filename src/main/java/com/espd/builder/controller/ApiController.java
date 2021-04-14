@@ -47,10 +47,10 @@ public class ApiController {
 
     /**
      *   ENDPOINT
-     *  get a list which contains all criteria types (typeCodes) , based on espd regulated request document model version
+     *  get a list which contains all existing criteria groups , based on espd regulated request document  version
      */
-    @GetMapping(path = "/criteria/regulated/{version}/typesOfCriteria")
-    public ArrayList<String> typesOfCriteria(@PathVariable String  version) throws RetrieverException {
+    @GetMapping(path = "/criteria/regulated/{version}/criteriaGroups")
+    public ArrayList<String> getCriteriaGroups(@PathVariable String  version) throws RetrieverException {
 
         /**
          * define criteria extractor  based on PathVariable --> {version}
@@ -64,22 +64,22 @@ public class ApiController {
         }
 
         /**
-         * collect criteria type codes from the above criteriaExtractor
+         * collect all criteria groups from the above criteriaExtractor
          * and add them into an ArrayList
          */
 
-        ArrayList<String> typeCodes = new ArrayList<String>();
+        ArrayList<String> criteriaGroups = new ArrayList<String>();
 
         for(int i=0 ; i<criteriaExtractor.getFullList().size() ; i++){
-            if(!typeCodes.contains( criteriaExtractor.getFullList().get(i).getTypeCode() )){
-                typeCodes.add(criteriaExtractor.getFullList().get(i).getTypeCode());
+            if(!criteriaGroups.contains( criteriaExtractor.getFullList().get(i).getCriterionGroup() )){
+                criteriaGroups.add(criteriaExtractor.getFullList().get(i).getCriterionGroup());
             }
         }
 
         /**
          * Alphabetically sort the above list
          */
-        Collections.sort(typeCodes, new Comparator<String>() {
+        Collections.sort(criteriaGroups, new Comparator<String>() {
             @Override
             public int compare(String s1, String s2) {
                 return s1.compareToIgnoreCase(s2);
@@ -89,15 +89,15 @@ public class ApiController {
         /**
          * return the above list to API user
          */
-        return typeCodes;
+        return criteriaGroups;
     }
 
     /**
      * ENDPOINT
-     *  get criteria list , based on espd regulated request document model version
+     *  get list of criteria , based on espd regulated request document model version
      */
     @GetMapping(path = "/criteria/regulated/{version}/getList")
-    public List<SelectableCriterion> getList(@PathVariable String  version) throws RetrieverException {
+    public List<SelectableCriterion> getCriteriaList(@PathVariable String  version) throws RetrieverException {
         /**
          * define criteria extractor  based on PathVariable --> version
          */
@@ -110,7 +110,7 @@ public class ApiController {
         }
 
         /**
-         * return a list with criteria
+         * return a list filled with criteria
          */
         return criteriaExtractor.getFullList();
 
@@ -118,10 +118,10 @@ public class ApiController {
 
     /**
      * ENDPOINT
-     * get criteria with certain typeCode , based on path parameter --> {criteriaTypeCode}
+     * get criteria of certain criterion Group , based on path parameter --> {criterionGroup}
      */
-    @GetMapping(path = "/criteria/regulated/{version}/getCertainCriteria/{criteriaTypeCode}")
-    public ArrayList<SelectableCriterion> getCertainCriteria(@PathVariable String  version , @PathVariable String  criteriaTypeCode) throws RetrieverException {
+    @GetMapping(path = "/criteria/regulated/{version}/getCertainCriteria/{criterionGroup}")
+    public ArrayList<SelectableCriterion> getCriteriaOfCertainCriteriaGroup(@PathVariable String  version , @PathVariable String  criterionGroup) throws RetrieverException {
 
         ArrayList<SelectableCriterion> list = new ArrayList<SelectableCriterion>();
         CriteriaExtractor criteriaExtractor;
@@ -129,14 +129,14 @@ public class ApiController {
         if(version.equals("v1")){
             criteriaExtractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
             for(int counter=0;counter<criteriaExtractor.getFullList().size();counter++){
-                if(criteriaExtractor.getFullList().get(counter).getTypeCode().equals(criteriaTypeCode)){
+                if(criteriaExtractor.getFullList().get(counter).getCriterionGroup().equals(criterionGroup)){
                     list.add(criteriaExtractor.getFullList().get(counter));
                 }
             }
         }else if(version.equals("v2")){
             criteriaExtractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
             for(int counter=0;counter<criteriaExtractor.getFullList().size();counter++){
-                if(criteriaExtractor.getFullList().get(counter).getTypeCode().equals(criteriaTypeCode)){
+                if(criteriaExtractor.getFullList().get(counter).getCriterionGroup().equals(criterionGroup)){
                     list.add(criteriaExtractor.getFullList().get(counter));
                 }
             }
@@ -155,7 +155,7 @@ public class ApiController {
      *  get a list which contains the names of all codelists available (codelist for BidType,codelist for CountryIdentification   etc...)
      */
     @GetMapping(path = "/codelists/regulated/{version}/types")
-    public Codelists[] codelistsTypes(@PathVariable String  version) {
+    public Codelists[] getCodelistsNames(@PathVariable String  version) {
 
         if (version.equals("v1")) {
             return CodelistsV1.values();
@@ -170,7 +170,7 @@ public class ApiController {
      *  get one certain codelist ,based on path parameter --> {type}
      */
     @GetMapping(path = "/codelists/regulated/{version}/{type}/codelist")
-    public Map<String,String> getCodelist(@PathVariable String  version , @PathVariable String  type) {
+    public Map<String,String> getCertainCodelist(@PathVariable String  version , @PathVariable String  type) {
 
         if (version.equals("v1")) {
 
@@ -276,7 +276,7 @@ public class ApiController {
      * generated file gets downloaded automatically
      */
     @PostMapping(path = "/exportEspdRequestDocument/regulated/{version}/{exportFormat}")
-    public String getEspdRequestDoc(@RequestBody ESPDRequestImpl espdRequest , @PathVariable String exportFormat ,@PathVariable String version ) throws IOException {
+    public String exportEspdRequestDocAs(@RequestBody ESPDRequestImpl espdRequest , @PathVariable String exportFormat ,@PathVariable String version ) throws IOException {
 
 
         if(version.equals("v1")) {
@@ -334,7 +334,7 @@ public class ApiController {
      * Import an espd request .xml file and convert it to json format
      */
     @PostMapping(path = "/importEspdRequestDocument/regulated/{version}" , consumes = "multipart/form-data")
-    public ESPDRequest importEspdxmlFile(@PathVariable String version , @RequestParam("file") MultipartFile file) throws FileNotFoundException, BuilderException, RetrieverException {
+    public ESPDRequest importEspdFromXmlFile(@PathVariable String version , @RequestParam("file") MultipartFile file) throws FileNotFoundException, BuilderException, RetrieverException {
 
         //convert MultipartFile to File
         String fileName = file.getOriginalFilename();
@@ -409,82 +409,6 @@ public class ApiController {
 
         return "successfully created user";
 
-    }
-
-
-
-    /**
-     * TEST ENDPOINTS
-     */
-
-    //trying to get espd request as json
-    //works
-    @GetMapping(path = "/getDefaultEspdRequest/regulated/{version}")
-    public ESPDRequest getDefaultEspdRequest(@PathVariable String version) throws BuilderException, RetrieverException {
-
-        CriteriaExtractor regulatedExtractor ;
-        ESPDRequest espdRequest;
-
-        if(version.equals("v1")){
-            regulatedExtractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
-
-            espdRequest = BuilderFactory.EDM_V1
-                    .createRegulatedModelBuilder()
-                    .createESPDRequest();
-
-            espdRequest.setCriterionList(regulatedExtractor.getFullList());
-            return espdRequest;
-
-        }else if(version.equals("v2")){
-            regulatedExtractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
-
-            espdRequest = BuilderFactory.EDM_V2
-                    .createRegulatedModelBuilder()
-                    .createESPDRequest();
-
-            espdRequest.setCriterionList(regulatedExtractor.getFullList());
-            return espdRequest;
-        }
-
-        return null;
-    }
-
-
-    /**
-     * ENDPOINT
-     *
-     * Import espd file from resources and convert it to json
-     * WORKS
-     */
-    @GetMapping(path = "/importEspdRequestDocumentFromResources/regulated/{version}")
-    public ESPDRequest importEspd(@PathVariable String version) throws RetrieverException, BuilderException {
-
-
-        if(version.equals("v1")) {
-            ESPDRequest espdRequest = BuilderFactory.EDM_V1
-                    .createRegulatedModelBuilder()
-                    .importFrom(ApiController.class.getResourceAsStream("/artefacts/regulated-v1-1.xml"))
-                    .createESPDRequest();
-
-            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
-
-            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
-
-            return espdRequest;
-        }else if (version.equals("v2")){
-            ESPDRequest espdRequest = BuilderFactory.EDM_V2
-                    .createRegulatedModelBuilder()
-                    .importFrom(ApiController.class.getResourceAsStream("/artefacts/regulated-v2-1.xml"))
-                    .createESPDRequest();
-
-            CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
-
-            espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
-
-            return espdRequest;
-        }
-
-        return null;
     }
 
 
