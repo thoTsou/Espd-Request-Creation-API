@@ -9,12 +9,15 @@ package com.espd.builder.model;
 public class User {
     private String username;
     private String password;
+    //role can take two values , CA or CE --> CA(as Contracting Authority) , CE( as Contracting Entity)
+    private String role ;
 
     public User(){};
 
-    User(String username , String password){
+    User(String username , String password , String role){
         this.setUsername(username);
         this.setPassword(password);
+        this.setRole(role);
     }
 
     public void setPassword(String password) {
@@ -31,5 +34,13 @@ public class User {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

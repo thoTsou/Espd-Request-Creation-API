@@ -28,7 +28,7 @@ public class swaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Espd Request Docs CRUD API (only for regulated v1/v2)")
-                .description("API reference for developers")
+                .description("API description")
                 .contact("tsoufis.thodoris@gmail.com").version("1.0").build();
     }
 }

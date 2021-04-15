@@ -18,7 +18,7 @@ import eu.esens.espdvcd.model.SelectableCriterion;
 import eu.esens.espdvcd.retriever.criteria.CriteriaExtractor;
 import eu.esens.espdvcd.retriever.exception.RetrieverException;
 import eu.esens.espdvcd.transformation.TransformationService;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,6 +32,8 @@ import eu.esens.espdvcd.retriever.criteria.RegulatedCriteriaExtractorBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.transform.stream.StreamSource;
+
+import io.swagger.annotations.*;
 
 
 @RestController
@@ -49,6 +51,8 @@ public class ApiController {
      *   ENDPOINT
      *  get a list which contains all existing criteria groups , based on espd regulated request document  version
      */
+    @ApiOperation(value = "Retrieve a list which contains all existing criteria groups , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2")
     @GetMapping(path = "/criteria/regulated/{version}/criteriaGroups")
     public ArrayList<String> getCriteriaGroups(@PathVariable String  version) throws RetrieverException {
 
@@ -94,8 +98,10 @@ public class ApiController {
 
     /**
      * ENDPOINT
-     *  get list of criteria , based on espd regulated request document model version
+     *  get list of criteria , based on espd request document  version
      */
+    @ApiOperation(value = "Get full list of criteria , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2")
     @GetMapping(path = "/criteria/regulated/{version}/getList")
     public List<SelectableCriterion> getCriteriaList(@PathVariable String  version) throws RetrieverException {
         /**
@@ -120,6 +126,8 @@ public class ApiController {
      * ENDPOINT
      * get criteria of certain criterion Group , based on path parameter --> {criterionGroup}
      */
+    @ApiOperation(value = "Get criteria of certain criterion Group , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2 ___ Parameter {criterionGroup} must equals to a certain criteria group ( you can see all criteria groups available by hitting /api/criteria/regulated/{version}/criteriaGroups)")
     @GetMapping(path = "/criteria/regulated/{version}/getCertainCriteria/{criterionGroup}")
     public ArrayList<SelectableCriterion> getCriteriaOfCertainCriteriaGroup(@PathVariable String  version , @PathVariable String  criterionGroup) throws RetrieverException {
 
@@ -154,6 +162,8 @@ public class ApiController {
      * ENDPOINT
      *  get a list which contains the names of all codelists available (codelist for BidType,codelist for CountryIdentification   etc...)
      */
+    @ApiOperation(value = "Get a list which contains the names of all codelists available , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2")
     @GetMapping(path = "/codelists/regulated/{version}/types")
     public Codelists[] getCodelistsNames(@PathVariable String  version) {
 
@@ -169,6 +179,8 @@ public class ApiController {
      * ENDPOINT
      *  get one certain codelist ,based on path parameter --> {type}
      */
+    @ApiOperation(value = "Get one certain codelist , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2 ___ parameter {type} must equals to a certain codelist name (etc Currency) ")
     @GetMapping(path = "/codelists/regulated/{version}/{type}/codelist")
     public Map<String,String> getCertainCodelist(@PathVariable String  version , @PathVariable String  type) {
 
@@ -267,65 +279,52 @@ public class ApiController {
      * ENPOINTS to import and export Espd Requests
       */
 
+
     /**
      * ENDPOINT
      *
      * Espd Request extraction endpoint.
      * Receives an espd request in json format from the frontend
-     * and generates an official espd request document  , formated as xml or pdf or html .
-     * generated file gets downloaded automatically
+     * and generates-returns an official espd request document  , formated as xml or pdf or html .
      */
-    @PostMapping(path = "/exportEspdRequestDocument/regulated/{version}/{exportFormat}")
-    public String exportEspdRequestDocAs(@RequestBody ESPDRequestImpl espdRequest , @PathVariable String exportFormat ,@PathVariable String version ) throws IOException {
-
-
+    @ApiOperation(value = "Receive espd request as json and generates-returns it as xml or pdf or html , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2 ___ Parameter {exportFormat} must equals to xml or pdf or html ___ Parameter {language} must equals to one of the available Languages Codes *(etc --> EN ) **(api user can retrieve them by hitting api/codelists/regulated/{version}/LanguageCodeEU/codelist ) ")
+    @PostMapping(path = "/exportEspdRequestDocument/regulated/{version}/{exportFormat}/{language}")
+    public byte[] exportEspdRequestDocAs(@RequestBody ESPDRequestImpl espdRequest , @PathVariable String exportFormat , @PathVariable String version , @PathVariable String language ) throws IOException {
         if(version.equals("v1")) {
             switch (exportFormat) {
                 case "xml":
-                    File targetFile2 = new File("C:\\Downloads\\espd-request-regulated-v1.xml");
-                    FileUtils.copyInputStreamToFile(new XMLDocumentBuilderV1(espdRequest).getAsInputStream(), targetFile2);
-                    return "xml file downloaded successfully";
+                    return IOUtils.toByteArray(new XMLDocumentBuilderV1(espdRequest).getAsInputStream());
                 case "html":
                     String theXML = BuilderFactory.EDM_V1.createXMLDocumentBuilderFor(espdRequest).getAsString();
                     TransformationService transformationService1 = new TransformationService();
-                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
-                    File targetFile1 = new File("C:\\Downloads\\espd-request-regulated-v1.html");
-                    FileUtils.copyInputStreamToFile(htmlStream, targetFile1);
-                    return "html file downloaded successfully";
+                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.valueOf(language));
+                    return IOUtils.toByteArray(htmlStream);
                 case "pdf":
                     PDFDocumentBuilderV1 pdfDocumentBuilderV1 = BuilderFactory.EDM_V1
                             .createPDFDocumentBuilderFor(espdRequest);
                     TransformationService transformationService = new TransformationService();
-                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV1.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
-                    File targetFile = new File("C:\\Downloads\\espd-request-regulated-v1.pdf");
-                    FileUtils.copyInputStreamToFile(pdfStream, targetFile);
-                    return "pdf file downloaded successfully";
+                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV1.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.valueOf(language));
+                    return IOUtils.toByteArray(pdfStream);
             }
         }else if (version.equals("v2")){
             switch (exportFormat) {
                 case "xml":
-                    File targetFile2 = new File("C:\\Downloads\\espd-request-regulated-v2.xml");
-                    FileUtils.copyInputStreamToFile(new XMLDocumentBuilderV2(espdRequest).getAsInputStream(), targetFile2);
-                    return "xml file downloaded successfully";
+                    return IOUtils.toByteArray(new XMLDocumentBuilderV2(espdRequest).getAsInputStream());
                 case "html":
                     String theXML = BuilderFactory.EDM_V2.createXMLDocumentBuilderFor(espdRequest).getAsString();
                     TransformationService transformationService1 = new TransformationService();
-                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
-                    File targetFile1 = new File("C:\\Downloads\\espd-request-regulated-v2.html");
-                    FileUtils.copyInputStreamToFile(htmlStream, targetFile1);
-                    return "html file downloaded successfully";
+                    InputStream htmlStream = transformationService1.createHtmlStream(new StreamSource(new ByteArrayInputStream(theXML.getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.valueOf(language));
+                    return IOUtils.toByteArray(htmlStream);
                 case "pdf":
                     PDFDocumentBuilderV2 pdfDocumentBuilderV2 = BuilderFactory.EDM_V2
                             .createPDFDocumentBuilderFor(espdRequest);
                     TransformationService transformationService = new TransformationService();
-                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV2.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.EL);
-                    File targetFile = new File("C:\\Downloads\\espd-request-regulated-v2.pdf");
-                    FileUtils.copyInputStreamToFile(pdfStream, targetFile);
-                    return "pdf file downloaded successfully";
+                    InputStream pdfStream = transformationService.createPdfStream(new StreamSource(new ByteArrayInputStream(pdfDocumentBuilderV2.getAsString().getBytes(StandardCharsets.UTF_8))), EULanguageCodeEnum.valueOf(language));
+                    return IOUtils.toByteArray(pdfStream);
             }
         }
-
-        return "wrong export format path parameter , or version path parameter";
+        return null;
     }
 
     /**
@@ -333,6 +332,8 @@ public class ApiController {
      *
      * Import an espd request .xml file and convert it to json format
      */
+    @ApiOperation(value = "Import espd request from a .xml file , based on document version",
+            notes = "Parameter {version} must equals to v1 OR v2")
     @PostMapping(path = "/importEspdRequestDocument/regulated/{version}" , consumes = "multipart/form-data")
     public ESPDRequest importEspdFromXmlFile(@PathVariable String version , @RequestParam("file") MultipartFile file) throws FileNotFoundException, BuilderException, RetrieverException {
 
@@ -355,6 +356,7 @@ public class ApiController {
             ESPDRequest espdRequest = BuilderFactory.EDM_V1.createRegulatedModelBuilder().importFrom(inputStream).createESPDRequest();
             CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V1).build();
 
+            //json must include all criteria (selected+unselected)
             espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
 
             return espdRequest;
@@ -362,6 +364,7 @@ public class ApiController {
             ESPDRequest espdRequest = BuilderFactory.EDM_V2.createRegulatedModelBuilder().importFrom(inputStream).createESPDRequest();
             CriteriaExtractor extractor = new RegulatedCriteriaExtractorBuilder(EDMVersion.V2).build();
 
+            //json must include all criteria (selected+unselected)
             espdRequest.setCriterionList(extractor.getFullList(espdRequest.getFullCriterionList()));
 
             return espdRequest;
@@ -380,8 +383,15 @@ public class ApiController {
      * Create new user
      * This is the only endpoint that does not have to be secured (no user authentication needed)
      */
+    @ApiOperation(value = "Insert a new user into DB",
+            notes = "User role must equals to CA or CE --> CA(as Contracting Authority) , CE( as Contracting Entity)")
     @PostMapping(path = "/users/createNewUser")
     public String createUser(@RequestBody User user ){
+
+        //check if role is CA or CE
+        if( !user.getRole().equals("CA") && !user.getRole().equals("CE") ){
+            return "role must be CA or CE --> CA(as Contracting Authority) , CE( as Contracting Entity)";
+        }
 
         //Check if username is available ( Maybe someone else has this username)
         List<User> usersList = this.jdbcTemplate.query(
@@ -405,11 +415,10 @@ public class ApiController {
         BCryptPasswordEncoder bCryptPasswordEncodernew = new BCryptPasswordEncoder();
         String encryptedPassword = bCryptPasswordEncodernew.encode(user.getPassword());
 
-        jdbcTemplate.update("insert into users (username,password,role,enabled) values(?,?,?,?)", user.getUsername(), encryptedPassword, "ROLE_USER", 1);
+        jdbcTemplate.update("insert into users (username,password,role,enabled) values(?,?,?,?)", user.getUsername(), encryptedPassword, user.getRole() , 1);
 
         return "successfully created user";
 
     }
-
 
 }
