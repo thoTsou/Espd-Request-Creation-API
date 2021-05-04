@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().permitAll();
 
-        //fixes 403 forbidden problem when hitting --> .../api/users/createNewUser and .../api/users/validateUsername/{username}
+        //fixes 403 forbidden problem when hitting --> .../api/users/createNewUser
         http.csrf().disable();
 
     }

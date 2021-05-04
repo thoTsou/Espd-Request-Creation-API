@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Espd HomePage</title>
+    <meta charset="utf-8">
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- jquery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- font awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!--Fontawesome CDN-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+        integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+    <!--My external css -->
+    <link rel="stylesheet" type="text/css" href="../css/index.css">
+    <!-- My external Js -->
+    <script src="../js/index.js"></script>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <!-- NavBar-->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">ESPD Service</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav" style="margin-left: 80%;">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="./index.html">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="./register.html">Register</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Invalid Credentials -->
+    <div class="container" style="display:none;margin-top: 1%;" id="invalidCredentials">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="alert alert-danger" role="alert">
+                    Username or password is invalid.Please try to login with valid credentials.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Login-->
+    <div class="container loginCont" style="padding: 4%;display: block;" id="LoginDiv">
+        <div class="d-flex justify-content-center h-100">
+            <div class="card loginCard">
+                <div class="card-header loginCardHeader">
+                    <h3>Log In</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="input-group form-group" style="margin-top: 15%;">
+                        <div class="input-group-prepend loginInputGroupPrepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="username" id="username">
+
+                    </div>
+
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend loginInputGroupPrepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" class="form-control" placeholder="password" id="loginPassword">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="button" value="Login" class="btn float-right login_btn" id="loginButton">
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-center links">
+                        Don't have an account? <a href="./register.html" style="color: yellow;"><b>Register Now</b></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Welcome to espd service , what would you like to do ?-->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="WelcomeDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    Welcome to the ESPD Service
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                European Single Procurement Document (ESPD) is a self-declaration of the businesses'
+                                financial status, abilities and suitability for a public procurement procedure. It is
+                                available in all EU languages and used as a preliminary evidence of fulfilment of the
+                                conditions required in public procurement procedures across the EU. Thanks to the ESPD,
+                                the tenderers no longer have to provide full documentary evidence and different forms
+                                previously used in the EU procurement, which means a significant simplification of
+                                access to cross-border tendering opportunities. From October 2018 onwards the ESPD shall
+                                be provided exclusively in an electronic form.<br /><br />
+                                National Electronic Public Procurement System (NEPPS) provides the current free web
+                                service (Promitheus ESPDint) for the buyers, bidders and other parties interested in
+                                filling in the ESPD/SSDD electronically. The online form can be filled in, printed and
+                                then sent to the buyer together with the rest of the bid.<br /><br />
+
+
+                                If the procedure is run electronically, the ESPD can be exported, stored and submitted
+                                electronically. The ESPD provided in a previous public procurement procedure can be
+                                reused as long as the information remains correct. Bidders may be excluded from the
+                                procedure or be subject to prosecution if the information in the ESPD is seriously
+                                misrepresented, withheld or cannot be complemented with supporting documents.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    What would you like to do ?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="actionRadios"
+                                        id="createEspdRadio" value="createEspdRadio">
+                                    <label class="form-check-label" for="createEspdRadio">
+                                        Create a new ESPD
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="actionRadios" id="reuseEspdRadio"
+                                        value="reuseEspdRadio">
+                                    <label class="form-check-label" for="reuseEspdRadio">
+                                        Reuse an existing ESPD
+                                    </label>
+                                </div>
+                                <div class="form-check disabled">
+                                    <input class="form-check-input" type="radio" name="actionRadios"
+                                        id="reviewEspdRadio" value="reviewEspdRadio">
+                                    <label class="form-check-label" for="reviewEspdRadio">
+                                        Review ESPD
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><br />
+                <button type="button" class="btn btn-success" id="toInformationBtn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- no radio is pressed (for what would you like to do ?) -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="noRadioPressed">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12">
+                <div class="alert alert-danger" role="alert">
+                    Please specify WHAT would you like to do!
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- espd version selection and authority location selection -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="InfoDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    Please Select ESPD version
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show expand" aria-labelledby="headingOne"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="versionRadios" id="v1Radio"
+                                            value="v1Radio" checked>
+                                        <label class="form-check-label" for="v1Radio">
+                                            Version 1
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="versionRadios" id="v2Radio"
+                                            value="v2Radio">
+                                        <label class="form-check-label" for="v2Radio">
+                                            Version 2
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    Where is your authority located ?
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseTwo" class="collapse show expand" aria-labelledby="headingTwo"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <select name="Country" id="Country">
+                                    <option value="Greece">Greece</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><br />
+                <button type="button" class="btn btn-success" id="next2Btn">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information concerning the procurement procedure and the contracting authority or contracting entity -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="ProcurmentInfoDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    Information about publication
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show expand" aria-labelledby="headingOne"
+                            data-parent="#accordion">
+                            <div class="card-body">
+
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput">For procurement procedures in which a call for
+                                        competition has been published in the Official Journal of the European Union,
+                                        the information required under Part I will be automatically retrieved, provided
+                                        that the electronic ESPD-service is used to generate and fill in the ESPD.
+                                        Reference of the relevant notice published in the Official Journal of the
+                                        European Union:</label>
+                                    <input type="text" class="form-control" id="receivedNoticeNumber"
+                                        placeholder="Received Notice Number"><br /><br />
+                                    <input type="text" class="form-control" id="noticeNumberInTheOJS"
+                                        placeholder="Notice Number in the OJS">
+                                </div>
+                                <div class="form-group">
+                                    <label for="formGroupExampleInput2">In case publication of a notice in the Official
+                                        Journal of the European Union is not required, please give other information
+                                        allowing the procurement procedure to be unequivocally identified (e. g.
+                                        reference of a publication at national level)</label>
+                                    <input type="text" class="form-control" id="OJSurl" placeholder="OJS url">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    Identity of the procurer
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseTwo" class="collapse expand" aria-labelledby="headingTwo"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="ProcurerName"
+                                    placeholder="Official Name"><br />
+                                <input type="text" class="form-control" id="VAT"
+                                    placeholder="VAT number , if applicable"><br />
+                                <input type="text" class="form-control" id="ProcurerWebsite"
+                                    placeholder="Website , if applicable"><br />
+                                <input type="text" class="form-control" id="ProcurerCity"
+                                    placeholder="City"><br />
+                                <input type="text" class="form-control" id="ProcurerStreetAndNumber"
+                                    placeholder="Street and number"><br />
+                                <input type="text" class="form-control" id="ProcurerPostcode"
+                                    placeholder="Postcode"><br />
+                                <input type="text" class="form-control" id="ProcurerContactPerson"
+                                    placeholder="Contact Person"><br />
+                                <input type="text" class="form-control" id="ProcurerTelephone"
+                                    placeholder="Telephone"><br />
+                                <input type="text" class="form-control" id="ProcurerFax"
+                                    placeholder="Fax"><br />
+                                <input type="text" class="form-control" id="ProcurerEmail"
+                                    placeholder="Email"><br />
+                                <input type="text" class="form-control" id="ProcurerCountry"
+                                    placeholder="Country"><br />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingThree">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse"
+                                    data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Information about the procurement procedure
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseThree" class="collapse expand" aria-labelledby="headingThree"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <input type="text" class="form-control" id="ProcurementTitle"
+                                    placeholder="Title"><br />
+                                <textarea id="ProcurementDescr" name="ProcurementDescr" rows="4" cols="50"
+                                    placeholder="Short Description"></textarea><br /><br />
+                                <input type="text" class="form-control" id="fileReferenceNumber"
+                                    placeholder="File reference number attributed by the contracting authority or contracting entity,if applicable"><br />
+                            </div>
+                        </div>
+                    </div>
+                </div><br />
+                <button type="button" class="btn btn-success" id="next3Btn">Next</button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Exclusion grounds -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;border-style: solid;border-color: gray;"
+        id="ExclusionGroundsDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" id="exlusionGrounds">
+                <h4 style="text-align: center;color: red;"><u>Exclusion Grounds</u></h4><br /><br />
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <button type="button" class="btn btn-success" id="next4Btn" style="margin-bottom: 2%;">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selection criteria -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;border-style: solid;border-color: gray;"
+        id="SelectionGroundsDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" id="selectionGrounds">
+                <h4 style="text-align: center;color: green;"><u>Selection Grounds</u></h4><br /><br />
+            </div>
+        </div>
+        <div class="row" style="text-align: center;">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <button type="button" class="btn btn-success" id="next5Btn" style="margin-bottom: 2%;">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Finish -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="Finish">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12" id="selectionGrounds">
+                <h4 style="text-align: center;color: blue;"><u>Finish</u></h4><br /><br />
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    Save your ESPD Request document
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <a type="button" class="btn btn-success" style="margin: 1%;" id="asXMLbtn" target="_blank">as XML</a>
+                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asHTMLbtn" >as HTML</button>
+                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asPDFbtn" >as PDF</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <!-- footer -->
+    <footer class="page-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-md-8 col-sm-12">
+                    <h6 class="text-uppercase font-weight-bold">Επιπλέον Πλροφορίες</h6>
+                    <p>Σκοπός της διαδικτυακής αυτής εφαρμογής είναι η διευκόλυνση των πολιτών ως
+                        προς το κλείσιμο ραντεβού για τον εμβολισμό τους κατά του ιιού COVID-19.
+                    </p>
+                </div>
+                <div class="col-lg-4 col-md-4 col-sm-12">
+                    <h6 class="text-uppercase font-weight-bold">Επικοινωνία</h6>
+                    <p><i class="fa fa-compass" aria-hidden="true"></i> Μ. Καραολή & Α. Δημητρίου 80, 18534 Πειραιάς
+                        <br /><i class="fa fa-envelope-o" aria-hidden="true"></i> info@govWebsite.com
+                        <br /><i class="fa fa-phone" aria-hidden="true"></i> 2101234567
+                        <br /><i class="fa fa-phone" aria-hidden="true"></i> 2101234568
+                    </p>
+                </div>
+            </div>
+            <div class="footer-copyright text-center">© 2021 Copyright: MyWebsite.com</div>
+        </div>
+    </footer>
+</body>
+
+</html>
