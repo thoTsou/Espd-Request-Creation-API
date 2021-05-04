@@ -29,7 +29,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //http basic auth.
-        http.httpBasic()
+        http.cors().and().httpBasic()
                 .and().
                 authorizeRequests()
                 .anyRequest().authenticated()
@@ -38,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout().permitAll();
 
-        //fixes 403 forbidden problem when trying to create new user at --> .../api/users/createNewUser
+        //fixes 403 forbidden problem when hitting --> .../api/users/createNewUser and .../api/users/validateUsername/{username}
         http.csrf().disable();
 
     }
@@ -51,4 +51,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/api/users/createNewUser");
     }
+
+
 }
