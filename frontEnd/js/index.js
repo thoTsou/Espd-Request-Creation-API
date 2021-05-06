@@ -60,6 +60,9 @@ var espdRequestAsJson = {
 //document version
 var documentVersion;
 
+//do not save same espd many times
+var doNotSave = false; 
+
 $(document).ready(function () {
     //FOR CREATING ESPD
 
@@ -83,24 +86,6 @@ $(document).ready(function () {
             success: function (result) {
                 console.log(result);
 
-                //prefil some input fields , if user has already made an espd
-                $.ajax({
-                    type: "GET",
-                    url: "http://localhost:8080/api/users/retrieveInformationAbout/" + username + "",
-                    beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-                    success: function (result) {
-                        //console.log(result);
-
-                        informationAboutUser = JSON.parse(result);
-
-                        setInformationFromArray(informationAboutUser);
-
-                    },
-                    error: function (error) {
-                        console.log("User has not made any espd request documents yet");
-                    },
-                });
-
                 $("#invalidCredentials").hide();
                 $("#LoginDiv").hide();
                 $("#WelcomeDiv").show();
@@ -117,24 +102,93 @@ $(document).ready(function () {
             },
         });
 
+        // load espd so that user can review them
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/api/reviewEspdDocuments/" + username + "/getList",
+            beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+            success: function (result) {
 
+
+                var i;
+                for (i = 0; i < result.length; i++) {
+                    let espd = JSON.parse(result[i]);
+
+                    //Row
+                    var row = document.createElement("tr");
+
+                    //Title
+                    var column = document.createElement("td");
+                    var title = document.createElement("p");
+                    var textnode = document.createTextNode(result[i]['procurementProcedureTitle']);
+                    title.appendChild(textnode);
+                    column.appendChild(title);
+                    row.appendChild(column);
+
+                    //Button
+                    var column = document.createElement("td");
+                    var button = document.createElement('button');
+                    button.type = 'button';
+                    button.classList.add("btn");
+                    button.classList.add("btn-success");
+                    button.innerHTML = 'Click To Review';
+                    button.addEventListener("click", setTemplate(espd), false);
+                    column.appendChild(button);
+                    row.appendChild(column);
+
+                    document.getElementById('reviewEspdTable').appendChild(row);
+                }
+
+            },
+            error: function (error) {
+                console.log(error);
+            },
+        });
     });
 
 
     //What would you like to do div
     $("#toInformationBtn").click(function () {
+        let username = $("#username").val();
+        let password = $("#loginPassword").val();
+
         let createNewEspd = false;
         let reuseEspd = false;
+        let viewEspd = false;
 
         if ($('#createEspdRadio').is(':checked')) {
             createNewEspd = true;
+            //prefil some input fields , if user has already made an espd
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/api/users/retrieveInformationAbout/" + username + "",
+                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                success: function (result) {
+                    //console.log(result);
+
+                    informationAboutUser = JSON.parse(result);
+
+
+                    setInformationFromArray(informationAboutUser);
+
+
+                },
+                error: function (error) {
+                    console.log("User has not made any espd request documents yet");
+                },
+            });
         }
 
         if ($('#reuseEspdRadio').is(':checked')) {
             reuseEspd = true;
         }
 
-        if (createNewEspd === false && reuseEspd === false) {
+        if ($('#viewEspdRadio').is(':checked')) {
+            viewEspd = true;
+            doNotSave = true;
+        }
+
+        if (createNewEspd === false && reuseEspd === false && viewEspd === false) {
             $("#noRadioPressed").show();
             return false;
         } else if (createNewEspd === true) {
@@ -142,11 +196,16 @@ $(document).ready(function () {
             $("#WelcomeDiv").hide();
             $(".expand").addClass("show");
             $("#InfoDiv").show();
-        } else {
+        } else if (reuseEspd === true) {
             $("#noRadioPressed").hide();
             $("#WelcomeDiv").hide();
             $(".expand").addClass("show");
             $("#UploadEspdDiv").show();
+        } else {
+            $("#noRadioPressed").hide();
+            $("#WelcomeDiv").hide();
+            $(".expand").addClass("show");
+            $("#viewEspd").show();
         }
 
     });
@@ -468,6 +527,8 @@ $(document).ready(function () {
         }
     }
 
+
+
     //Go to finish div
     $('#next5Btn').click(function () {
 
@@ -510,7 +571,9 @@ $(document).ready(function () {
                 link.click();
 
                 //save espd into db
-                saveEspd(username , password , documentVersion , espdRequestAsJson);
+                if(doNotSave == false){
+                saveEspd(username, password, documentVersion, espdRequestAsJson);
+                }
 
             },
             error: function (error) {
@@ -972,7 +1035,7 @@ $(document).ready(function () {
         $('#ProcurerCity').val(informationAboutUser[9]['city']);
         $('#ProcurerPostcode').val(informationAboutUser[10]['postcode']);
         $('#ProcurerCountry').val('GR');
-        
+
 
         $('#ProcurerContactPerson').val(informationAboutUser[4]['contactPointName']);
         $('#ProcurerFax').val(informationAboutUser[5]['faxNumber']);
@@ -980,14 +1043,13 @@ $(document).ready(function () {
         $('#ProcurerEmail').val(informationAboutUser[7]['emailAddress']);
     }
 
-    function saveEspd(username ,password , documentVersion , espdRequestAsJson){
+    function saveEspd(username, password, documentVersion, espdRequestAsJson) {
 
         //save espd into db
-        alert("gere");
-
+        
         $.ajax({
             type: "POST",
-            url: "http://localhost:8080/api/exportEspdRequestDocument/regulated/"+documentVersion+"/saveDocument/"+username+"",
+            url: "http://localhost:8080/api/exportEspdRequestDocument/regulated/" + documentVersion + "/saveDocument/" + username + "",
             data: JSON.stringify(espdRequestAsJson),
             contentType: 'application/json',
             beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
@@ -1001,4 +1063,28 @@ $(document).ready(function () {
         });
     }
 
+    //FOR REVIEWING
+    function setTemplate(espd) {
+        return function () {
+
+            // set our template
+            espdRequestAsJson = [];
+
+            espdRequestAsJson = JSON.parse(JSON.stringify(espd));
+
+            //set document Version
+            if (espdRequestAsJson['documentDetails']['version'] == 'V1') {
+                documentVersion = 'v1';
+            } else {
+                documentVersion = 'v2';
+            }
+
+
+            //redirect
+            $('#viewEspd').hide();
+
+            $('#Finish').show();
+
+        }
+    }
 });

@@ -25,7 +25,7 @@ public class ReviewEspdDocuments {
 
     @ApiOperation(value = "Receive user's username and return a list with all his/her created espd documents",
             notes = "Parameter {username} must equals with one registered user's username")
-    @PostMapping(path = "/{username}/getList")
+    @GetMapping(path = "/{username}/getList")
     public List<String> returnListWithEspdDocuments( @PathVariable String username ) throws IOException {
 
         //retrieve id of user
@@ -40,9 +40,6 @@ public class ReviewEspdDocuments {
                         return rs.getString("EspddocumentAsJson");
                     }
                 });
-
-        espdDocumentsAsString.add("adcwvw");
-        espdDocumentsAsString.add("aceqev");
 
         return espdDocumentsAsString;
     }
