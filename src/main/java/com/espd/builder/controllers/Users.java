@@ -1,8 +1,11 @@
 package com.espd.builder.controllers;
 
-import com.espd.builder.model.User;
+import com.espd.builder.model.*;
 import io.swagger.annotations.ApiOperation;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -72,6 +75,96 @@ public class Users {
     public String checkCredentials(){
 
         return "Valid Credentials";
+    }
+
+    /**
+     * ENDPOINT
+     * return information about logged in user in order to prefill some input fields
+     */
+    @ApiOperation(value = "Retrieve information about logged in user in order to prefill some input fields")
+    @GetMapping(path = "/retrieveInformationAbout/{username}")
+    public String retrieveInformationAboutUser(@PathVariable String username){
+
+        //retrieve id of user
+        String sql = "SELECT * FROM users WHERE username='" + username + "'";
+        UserInformation userInformation = jdbcTemplate.queryForObject(sql, BeanPropertyRowMapper.newInstance(UserInformation.class));
+
+        if(userInformation != null) {
+
+            int usersID = userInformation.getUser_id();
+
+            //retrieve information about this user
+            String sql2 = "SELECT * FROM userdetails WHERE user_id=" + usersID;
+            UserDetails userDetails = jdbcTemplate.queryForObject(sql2, BeanPropertyRowMapper.newInstance(UserDetails.class));
+
+            String sql3 = "SELECT * FROM contactingdetails WHERE contactingDetails_id=" + usersID;
+            UserContactingDetails userContactingDetails = jdbcTemplate.queryForObject(sql3, BeanPropertyRowMapper.newInstance(UserContactingDetails.class));
+
+            String sql4 = "SELECT * FROM postaladdresses WHERE postalAddress_Id=" + usersID;
+            UserPostalAddress userPostalAddress = jdbcTemplate.queryForObject(sql4, BeanPropertyRowMapper.newInstance(UserPostalAddress.class));
+
+            //construct and return a json array containing all the info
+
+            JSONArray ja = new JSONArray();
+            JSONObject jo ;
+
+            //general Details
+            jo= new JSONObject();
+            jo.put("webSiteURI", userDetails.getWebSiteURI() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("caofficialName", userDetails.getCaofficialName() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("electronicAddressID", userDetails.getElectronicAddressID() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("cacountry", userDetails.getCacountry() );
+            ja.put(jo);
+
+            //contacting details
+            jo= new JSONObject();
+            jo.put("contactPointName", userContactingDetails.getContactPointName()  );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("faxNumber", userContactingDetails.getFaxNumber() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("telephoneNumber", userContactingDetails.getTelephoneNumber() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("emailAddress",  userContactingDetails.getEmailAddress() );
+            ja.put(jo);
+
+            //address details
+            jo= new JSONObject();
+            jo.put("addressLine1", userPostalAddress.getAddressLine1() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("city", userPostalAddress.getCity() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("postcode", userPostalAddress.getPostalAddress_Id() );
+            ja.put(jo);
+
+            jo= new JSONObject();
+            jo.put("countryCode", userPostalAddress.getCountryCode()  );
+            ja.put(jo);
+
+            return ja.toString();
+
+        }else {
+            return null;
+        }
+
     }
 
 }

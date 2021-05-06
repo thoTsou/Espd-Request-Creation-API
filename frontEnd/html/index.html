@@ -22,7 +22,7 @@
 
     <!--My external css -->
     <link rel="stylesheet" type="text/css" href="../css/index.css">
-    <!-- My external Js -->
+    <!-- My external Js files -->
     <script src="../js/index.js"></script>
 
 
@@ -165,11 +165,11 @@
                                         Reuse an existing ESPD
                                     </label>
                                 </div>
-                                <div class="form-check disabled">
-                                    <input class="form-check-input" type="radio" name="actionRadios"
-                                        id="reviewEspdRadio" value="reviewEspdRadio">
-                                    <label class="form-check-label" for="reviewEspdRadio">
-                                        Review ESPD
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="actionRadios" id="viewEspdRadio"
+                                        value="reuseEspdRadio">
+                                    <label class="form-check-label" for="reuseEspdRadio">
+                                        View Your Created Espd Documents
                                     </label>
                                 </div>
                             </div>
@@ -182,6 +182,7 @@
         </div>
     </div>
 
+
     <!-- no radio is pressed (for what would you like to do ?) -->
     <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="noRadioPressed">
         <div class="row">
@@ -193,6 +194,7 @@
         </div>
     </div>
 
+    <!-- CREATE ESPD -->
 
     <!-- espd version selection and authority location selection -->
     <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="InfoDiv">
@@ -316,8 +318,7 @@
                                     placeholder="VAT number , if applicable"><br />
                                 <input type="text" class="form-control" id="ProcurerWebsite"
                                     placeholder="Website , if applicable"><br />
-                                <input type="text" class="form-control" id="ProcurerCity"
-                                    placeholder="City"><br />
+                                <input type="text" class="form-control" id="ProcurerCity" placeholder="City"><br />
                                 <input type="text" class="form-control" id="ProcurerStreetAndNumber"
                                     placeholder="Street and number"><br />
                                 <input type="text" class="form-control" id="ProcurerPostcode"
@@ -326,10 +327,8 @@
                                     placeholder="Contact Person"><br />
                                 <input type="text" class="form-control" id="ProcurerTelephone"
                                     placeholder="Telephone"><br />
-                                <input type="text" class="form-control" id="ProcurerFax"
-                                    placeholder="Fax"><br />
-                                <input type="text" class="form-control" id="ProcurerEmail"
-                                    placeholder="Email"><br />
+                                <input type="text" class="form-control" id="ProcurerFax" placeholder="Fax"><br />
+                                <input type="text" class="form-control" id="ProcurerEmail" placeholder="Email"><br />
                                 <input type="text" class="form-control" id="ProcurerCountry"
                                     placeholder="Country"><br />
 
@@ -348,8 +347,7 @@
                         <div id="collapseThree" class="collapse expand" aria-labelledby="headingThree"
                             data-parent="#accordion">
                             <div class="card-body">
-                                <input type="text" class="form-control" id="ProcurementTitle"
-                                    placeholder="Title"><br />
+                                <input type="text" class="form-control" id="ProcurementTitle" placeholder="Title"><br />
                                 <textarea id="ProcurementDescr" name="ProcurementDescr" rows="4" cols="50"
                                     placeholder="Short Description"></textarea><br /><br />
                                 <input type="text" class="form-control" id="fileReferenceNumber"
@@ -413,9 +411,12 @@
                         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
                             data-parent="#accordion">
                             <div class="card-body">
-                                <a type="button" class="btn btn-success" style="margin: 1%;" id="asXMLbtn" target="_blank">as XML</a>
-                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asHTMLbtn" >as HTML</button>
-                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asPDFbtn" >as PDF</button>
+                                <a type="button" class="btn btn-success" style="margin: 1%;" id="asXMLbtn"
+                                    target="_blank">as XML</a>
+                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asHTMLbtn">as
+                                    HTML</button>
+                                <button type="button" class="btn btn-success" style="margin: 1%;" id="asPDFbtn">as
+                                    PDF</button>
                             </div>
                         </div>
                     </div>
@@ -426,7 +427,97 @@
         </div>
     </div>
 
-   
+    <!-- UPLOAD ESPD-->
+
+    <!-- select documetn version and choose file choose file -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="UploadEspdDiv">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div id="accordion">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne"
+                                    aria-expanded="true" aria-controls="collapseOne">
+                                    Chooose document version
+                                </button>
+                            </h5>
+                        </div>
+
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="actionRadios" id="uploadV1Radio"
+                                        value="createEspdRadio">
+                                    <label class="form-check-label" for="createEspdRadio">
+                                        Version 1
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="actionRadios" id="uploadV2Radio"
+                                        value="reuseEspdRadio">
+                                    <label class="form-check-label" for="reuseEspdRadio">
+                                        Version 2
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header" id="headingTwo">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                                    aria-expanded="false" aria-controls="collapseTwo">
+                                    Upload your Espd xml file
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo"
+                            data-parent="#accordion">
+                            <div class="card-body">
+                                <form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+                                    <input type="file" name="file" /><br /><br />
+                                    <input type="submit" value="Submit" id="uploadEspdBtn" />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- no radio is pressed (for what would you like to do ?) -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="noRadioPressedForUploading">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12">
+                <div class="alert alert-danger" role="alert">
+                    Please select document version
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invalid file -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="invalidUpload">
+        <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-12">
+                <div class="alert alert-danger" role="alert">
+                    Try again with a valid espd xml file and please choose documents version correctly.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW ESPD -->
+    <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="invalidUpload">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+            </div>
+        </div>
+    </div>
 
     <!-- footer -->
     <footer class="page-footer">
