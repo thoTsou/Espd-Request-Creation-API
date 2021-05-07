@@ -61,7 +61,8 @@ var espdRequestAsJson = {
 var documentVersion;
 
 //do not save same espd many times
-var doNotSave = false; 
+var doNotSave = false;
+
 
 $(document).ready(function () {
     //FOR CREATING ESPD
@@ -72,6 +73,7 @@ $(document).ready(function () {
         //retrieve given credentials
         let username = $("#username").val();
         let password = $("#loginPassword").val();
+
 
         // disabled the submit button
         $("#loginButton").prop("disabled", true);
@@ -120,7 +122,7 @@ $(document).ready(function () {
                     //Title
                     var column = document.createElement("td");
                     var title = document.createElement("p");
-                    var textnode = document.createTextNode(result[i]['procurementProcedureTitle']);
+                    var textnode = document.createTextNode(espd['cadetails']['procurementProcedureTitle']);
                     title.appendChild(textnode);
                     column.appendChild(title);
                     row.appendChild(column);
@@ -210,7 +212,7 @@ $(document).ready(function () {
 
     });
 
-    //espd version selection and authority location selection
+    //espd version selection and authority location selection + build criteria lists
     $("#next2Btn").click(function () {
 
         $("#InfoDiv").hide();
@@ -387,7 +389,8 @@ $(document).ready(function () {
                                         var newCheckBox = document.createElement('input');
                                         newCheckBox.type = 'checkbox';
                                         newCheckBox.id = result[i]['id'];
-                                        newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name']), false);
+                                        newCheckBox.classList.add("selectionCheckBoxes");
+                                        newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name'], result[i]['id']), false);
                                         newCheckBox.style.margin = "1%";
                                         document.getElementById(selectionGroundsCodes[localCounter]).appendChild(newCheckBox);
 
@@ -489,6 +492,8 @@ $(document).ready(function () {
         espdRequestAsJson['cadetails']['contactingDetails']['telephoneNumber'] = $("#ProcurerTelephone").val();
         espdRequestAsJson['cadetails']['contactingDetails']['emailAddress'] = $("#ProcurerEmail").val();
 
+        espdRequestAsJson['cadetails']['electronicAddressID'] = '_';
+
         //hide this div
         $("#ProcurmentInfoDiv").hide();
 
@@ -513,9 +518,9 @@ $(document).ready(function () {
     });
 
     //set criterion from unselected to selected
-    function setCriterionAsSelected(name) {
+    function setCriterionAsSelected(name, id) {
         return function () {
-            //alert(name);
+
 
             var i;
             for (i = 0; i < espdRequestAsJson['fullCriterionList'].length; i++) {
@@ -523,6 +528,28 @@ $(document).ready(function () {
                     espdRequestAsJson['fullCriterionList'][i]['selected'] = true;
                     break;
                 }
+            }
+
+            if (id == '7e7db838-eeac-46d9-ab39-42927486f22d') {
+                confirmation = confirm("Are you sure about selected all selection criteria?")
+
+                if (confirmation === true) {
+                    var selectionCheckBoxes = $('.selectionCheckBoxes');
+
+                    selectionCheckBoxes.prop('checked', true);
+                    selectionCheckBoxes.prop('disabled', !selectionCheckBoxes.prop('disabled'));
+
+                } else {
+                    $('#7e7db838-eeac-46d9-ab39-42927486f22d').prop('checked', false);
+                    var i;
+                    for (i = 0; i < espdRequestAsJson['fullCriterionList'].length; i++) {
+                        if (name == espdRequestAsJson['fullCriterionList'][i]['name']) {
+                            espdRequestAsJson['fullCriterionList'][i]['selected'] = false;
+                            break;
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -538,7 +565,6 @@ $(document).ready(function () {
 
         window.scrollTo(0, 0);
 
-
     });
 
 
@@ -550,6 +576,8 @@ $(document).ready(function () {
 
         let username = $("#username").val();
         let password = $("#loginPassword").val();
+
+        saveUserDetails(username, password);
 
         $("#asXMLbtn").prop("disabled", true);
 
@@ -571,9 +599,10 @@ $(document).ready(function () {
                 link.click();
 
                 //save espd into db
-                if(doNotSave == false){
-                saveEspd(username, password, documentVersion, espdRequestAsJson);
+                if (doNotSave == false) {
+                    saveEspd(username, password, documentVersion, espdRequestAsJson);
                 }
+
 
             },
             error: function (error) {
@@ -1046,7 +1075,7 @@ $(document).ready(function () {
     function saveEspd(username, password, documentVersion, espdRequestAsJson) {
 
         //save espd into db
-        
+
         $.ajax({
             type: "POST",
             url: "http://localhost:8080/api/exportEspdRequestDocument/regulated/" + documentVersion + "/saveDocument/" + username + "",
@@ -1087,4 +1116,31 @@ $(document).ready(function () {
 
         }
     }
+
+    // alerts user when he tries to refresh page or go back or forward
+    window.onbeforeunload = function () {
+        return "Data will be lost if you leave the page, are you sure?";
+    }
+
+    //saveUserDetails
+    function saveUserDetails(username, password) {
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:8080/api/users/saveInformationAboutUser/" + username,
+            data: JSON.stringify(espdRequestAsJson),
+            contentType: 'application/json',
+            beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+            success: function (result) {
+                console.log(result);
+
+            },
+            error: function (error) {
+                console.log(error);
+            },
+        });
+
+    }
+
+
 });

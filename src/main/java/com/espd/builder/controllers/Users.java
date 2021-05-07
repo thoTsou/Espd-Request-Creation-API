@@ -1,10 +1,12 @@
 package com.espd.builder.controllers;
 
 import com.espd.builder.model.*;
+import eu.esens.espdvcd.model.ESPDRequestImpl;
 import io.swagger.annotations.ApiOperation;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -159,6 +161,7 @@ public class Users {
             jo.put("countryCode", userPostalAddress.getCountryCode()  );
             ja.put(jo);
 
+
             return ja.toString();
 
         }else {
@@ -167,4 +170,50 @@ public class Users {
 
     }
 
+    /**
+     * ENDPOINT
+     * Store information about user
+     */
+    @ApiOperation(value = "Store information about user")
+    @PostMapping(path = "/saveInformationAboutUser/{username}" , consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String saveInformationAboutUser( @PathVariable String username , @RequestBody ESPDRequestImpl espdRequest  ){
+
+        //retrieve id of user
+        String sql = "SELECT * FROM users WHERE username='" + username + "'";
+        UserInformation userInformation = jdbcTemplate.queryForObject(sql, BeanPropertyRowMapper.newInstance(UserInformation.class));
+
+        try {
+            //check if user details are already defined
+            String sql2 = "SELECT * FROM userdetails WHERE user_id=" + userInformation.getUser_id();
+            UserDetails userDetails = jdbcTemplate.queryForObject(sql2, BeanPropertyRowMapper.newInstance(UserDetails.class));
+
+        }catch (Exception e) {
+
+                int usersID = userInformation.getUser_id();
+
+                //save information into DB
+
+                jdbcTemplate.update(
+                        "insert into postaladdresses values(?,?,?,?,?)",
+                        userInformation.getUser_id(), espdRequest.getCADetails().getPostalAddress().getAddressLine1(),
+                        espdRequest.getCADetails().getPostalAddress().getCity(), espdRequest.getCADetails().getPostalAddress().getPostCode(),
+                        espdRequest.getCADetails().getPostalAddress().getCountryCode());
+
+                jdbcTemplate.update(
+                        "insert into contactingdetails values(?,?,?,?,?)",
+                        userInformation.getUser_id(), espdRequest.getCADetails().getContactingDetails().getContactPointName(),
+                        espdRequest.getCADetails().getContactingDetails().getFaxNumber(), espdRequest.getCADetails().getContactingDetails().getTelephoneNumber(),
+                        espdRequest.getCADetails().getContactingDetails().getEmailAddress());
+
+
+                jdbcTemplate.update(
+                        "insert into userdetails values(?,?,?,?,?,?,?)",
+                        userInformation.getUser_id(), espdRequest.getCADetails().getElectronicAddressID(), espdRequest.getCADetails().getWebSiteURI(),
+                        userInformation.getUser_id(), userInformation.getUser_id(), espdRequest.getCADetails().getCAOfficialName(),
+                        espdRequest.getCADetails().getCACountry());
+
+                return "user's details succesfully added into DB";
+        }
+        return "user's details are already defined";
+    }
 }

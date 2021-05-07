@@ -32,18 +32,18 @@
 <body>
     <!-- NavBar-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">ESPD Service</a>
+        <a class="navbar-brand" href="index.html">ESPD Service</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav" style="margin-left: 80%;">
+        <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="./index.html">Login</a>
+                    <a class="nav-link" href="./index.html" style="color: black;">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./register.html">Register</a>
+                    <a class="nav-link" href="./register.html" style="color: black;" id="navBarRegisterButton">Register</a>
                 </li>
             </ul>
         </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-center links">
-                        Don't have an account? <a href="./register.html" style="color: yellow;"><b>Register Now</b></a>
+                        Don't have an account? <a href="./register.html" style="color: yellow;" id="registerButton"><b>Register Now</b></a>
                     </div>
                 </div>
             </div>
@@ -523,7 +523,7 @@
                         </tr>
                     </thead>
                     <tbody id="reviewEspdTable">
-                        
+
                     </tbody>
                 </table>
 
@@ -536,21 +536,25 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-8 col-sm-12">
-                    <h6 class="text-uppercase font-weight-bold">Επιπλέον Πλροφορίες</h6>
-                    <p>Σκοπός της διαδικτυακής αυτής εφαρμογής είναι η διευκόλυνση των πολιτών ως
-                        προς το κλείσιμο ραντεβού για τον εμβολισμό τους κατά του ιιού COVID-19.
+                    <h6 class="text-uppercase font-weight-bold"><u>Additional Information</u></h6><br />
+                    <p>This web application helps you </br>
+                    <ul>
+                        <li>Create an official Espd Request Document</li>
+                        <li>Reuse an existing Espd Request Document</li>
+                        <li>Review your created Espd Documents</li>
+                    </ul>
                     </p>
                 </div>
                 <div class="col-lg-4 col-md-4 col-sm-12">
-                    <h6 class="text-uppercase font-weight-bold">Επικοινωνία</h6>
-                    <p><i class="fa fa-compass" aria-hidden="true"></i> Μ. Καραολή & Α. Δημητρίου 80, 18534 Πειραιάς
-                        <br /><i class="fa fa-envelope-o" aria-hidden="true"></i> info@govWebsite.com
+                    <h6 class="text-uppercase font-weight-bold"><u>Contact us</u></h6><br />
+                    <p><i class="fa fa-compass" aria-hidden="true"></i> 80, M. Karaoli & A. Dimitriou St., 18534 Piraeus
+                        <br /><i class="fa fa-envelope" aria-hidden="true"></i> info@mail.com
                         <br /><i class="fa fa-phone" aria-hidden="true"></i> 2101234567
                         <br /><i class="fa fa-phone" aria-hidden="true"></i> 2101234568
                     </p>
                 </div>
             </div>
-            <div class="footer-copyright text-center">© 2021 Copyright: MyWebsite.com</div>
+            <div class="footer-copyright text-center">© 2021 Copyright: Tsoufis Theodoros</div>
         </div>
     </footer>
 </body>
