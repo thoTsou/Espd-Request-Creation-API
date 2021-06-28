@@ -154,7 +154,7 @@ public class Users {
             ja.put(jo);
 
             jo= new JSONObject();
-            jo.put("postcode", userPostalAddress.getPostalAddress_Id() );
+            jo.put("postcode", userPostalAddress.getPostCode() );
             ja.put(jo);
 
             jo= new JSONObject();

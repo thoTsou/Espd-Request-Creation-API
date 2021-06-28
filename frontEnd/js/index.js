@@ -1,5 +1,8 @@
 //GLOABAL VARIABLES
 
+//go back boolean values
+var gobackBtn3isPressed = false;
+
 //json formatted espd template
 var espdRequestAsJson = {
     "id": null,
@@ -91,6 +94,13 @@ $(document).ready(function () {
                 $("#invalidCredentials").hide();
                 $("#LoginDiv").hide();
                 $("#WelcomeDiv").show();
+
+                $("#navBarWelcomeUser").html("Welcome " + username);
+                // document.getElementById('navbarNav').style.marginLeft = '70%';
+                $("#loginNavBar").hide();
+                $("#navBarRegisterButton").hide();
+                $("#navBarWelcomeUser").show();
+
             },
             error: function (error) {
                 console.log(error);
@@ -179,6 +189,50 @@ $(document).ready(function () {
                     console.log("User has not made any espd request documents yet");
                 },
             });
+
+            //retrieve country list
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/api/codelists/regulated/v1/CountryIdentification/codelist",
+                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                success: function (result) {
+                    //console.log(result);
+
+                    let counties = JSON.parse(result);
+
+                    for (let i = 0; i < counties.length; i++) {
+
+                        var option = document.createElement("option");
+                        option.text = counties[i]['plain'];
+                        option.value = counties[i]['plain'];
+                        var select = document.getElementById("Country");
+                        select.appendChild(option);
+
+                    }
+
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/api/users/retrieveInformationAbout/" + username,
+                        beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                        success: function (result) {
+
+                            let info = JSON.parse(result);
+
+                            $('#Country').val(info[3]['cacountry']);
+
+                        },
+                        error: function (error) {
+                            console.log("No such user exist");
+                        },
+                    });
+
+                },
+                error: function (error) {
+                    console.log("Something went wrong");
+                },
+            });
+
+
         }
 
         if ($('#reuseEspdRadio').is(':checked')) {
@@ -225,212 +279,219 @@ $(document).ready(function () {
             documentVersion = 'v2';
         }
 
+        $('#ProcurerCountry').val($('#Country').val());
+
 
         let username = $("#username").val();
         let password = $("#loginPassword").val();
 
 
-        //constract selection and exclusion criteria lists
-        //Exclusion Criteria list
-        $.ajax({
-            type: "GET",
-            url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/criteriaGroups",
-            beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-            success: function (result) {
-                //console.log(result);
+        if (gobackBtn3isPressed === false) {
+            //constract selection and exclusion criteria lists
+            //Exclusion Criteria list
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/criteriaGroups",
+                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                success: function (result) {
+                    //console.log(result);
 
-                //clone array
-                criteriaGroupsCodes = result.slice();
-                exclusionGroundsCodes = [];
+                    //clone array
+                    criteriaGroupsCodes = result.slice();
+                    exclusionGroundsCodes = [];
 
-                for (i = 0; i < criteriaGroupsCodes.length; i++) {
-                    if (criteriaGroupsCodes[i].includes("EXCLUSION")) {
-                        exclusionGroundsCodes.push(criteriaGroupsCodes[i]);
-                    }
-                }
-
-                // ajax call to convert codes to plain text
-                $.ajax({
-                    type: "GET",
-                    url: "http://localhost:8080/api/codelists/regulated/" + documentVersion + "/CriteriaType/codelist",
-                    beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-                    success: function (result) {
-                        //console.log(result);
-
-                        criteriaGroupsCodelist = JSON.parse(result);
-
-                        for (i = 0; i < exclusionGroundsCodes.length; i++) {
-                            for (j = 0; j < criteriaGroupsCodelist.length; j++) {
-
-                                if (exclusionGroundsCodes[i] == criteriaGroupsCodelist[j]['code']) {
-                                    $("#exlusionGrounds").append("<h5 style='color:red;'>" + criteriaGroupsCodelist[j]['plain'] + "</h5><hr/><div id='" + exclusionGroundsCodes[i] + "' >  </div><hr/>");
-                                    break;
-                                }
-
-                            }
+                    for (i = 0; i < criteriaGroupsCodes.length; i++) {
+                        if (criteriaGroupsCodes[i].includes("EXCLUSION")) {
+                            exclusionGroundsCodes.push(criteriaGroupsCodes[i]);
                         }
+                    }
 
+                    // ajax call to convert codes to plain text
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/api/codelists/regulated/" + documentVersion + "/CriteriaType/codelist",
+                        beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                        success: function (result) {
+                            //console.log(result);
 
-                        //ajax callS to get criteria
+                            criteriaGroupsCodelist = JSON.parse(result);
 
-                        for (var counter = 0; counter < exclusionGroundsCodes.length; counter++) {
+                            for (i = 0; i < exclusionGroundsCodes.length; i++) {
+                                for (j = 0; j < criteriaGroupsCodelist.length; j++) {
 
-                            let localCounter = counter;
-
-                            $.ajax({
-                                type: "GET",
-                                url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/getCertainCriteria/" + exclusionGroundsCodes[localCounter] + "",
-                                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-                                success: function (result) {
-                                    //console.log(result);
-
-                                    for (i = 0; i < result.length; i++) {
-                                        //append checkbox
-                                        var newCheckBox = document.createElement('input');
-                                        newCheckBox.type = 'checkbox';
-                                        newCheckBox.id = result[i]['id'];
-                                        newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name']), false);
-                                        newCheckBox.style.margin = "1%";
-                                        document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(newCheckBox);
-
-                                        //append criterion title
-                                        var node1 = document.createElement("span");
-                                        var textnode = document.createTextNode(result[i]['name']);
-                                        node1.appendChild(textnode);
-                                        node1.style.fontWeight = 'bold';
-                                        document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(node1);
-
-                                        //append criterion description
-                                        var node2 = document.createElement("p");
-                                        var textnode = document.createTextNode(result[i]['description']);
-                                        node2.appendChild(textnode);
-                                        document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(node2);
-
+                                    if (exclusionGroundsCodes[i] == criteriaGroupsCodelist[j]['code']) {
+                                        $("#exlusionGrounds").append("<h5 style='color:red;'>" + criteriaGroupsCodelist[j]['plain'] + "</h5><hr/><div id='" + exclusionGroundsCodes[i] + "' >  </div><hr/>");
+                                        break;
                                     }
 
-                                },
-                                error: function (error) {
-                                    console.log(error);
-
-                                },
-                            });
-
-                        }
-
-                    },
-                    error: function (error) {
-                        console.log(error);
-
-                    },
-                });
-
-            },
-            error: function (error) {
-                console.log(error);
-
-            },
-        });
-
-        //Selection Criteria
-        $.ajax({
-            type: "GET",
-            url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/criteriaGroups",
-            beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-            success: function (result) {
-                //console.log(result);
-
-                //clone array
-                criteriaGroupsCodes = result.slice();
-                selectionGroundsCodes = [];
-
-                for (i = 0; i < criteriaGroupsCodes.length; i++) {
-                    if (criteriaGroupsCodes[i].includes("SELECTION")) {
-                        selectionGroundsCodes.push(criteriaGroupsCodes[i]);
-                    }
-                }
-
-                // ajax call to convert codes to plain text
-                $.ajax({
-                    type: "GET",
-                    url: "http://localhost:8080/api/codelists/regulated/" + documentVersion + "/CriteriaType/codelist",
-                    beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-                    success: function (result) {
-                        //console.log(result);
-
-                        criteriaGroupsCodelist = JSON.parse(result);
-
-                        for (i = 0; i < selectionGroundsCodes.length; i++) {
-                            for (j = 0; j < criteriaGroupsCodelist.length; j++) {
-
-                                if (selectionGroundsCodes[i] == criteriaGroupsCodelist[j]['code']) {
-                                    $("#selectionGrounds").append("<h5 style='color:green;'>" + criteriaGroupsCodelist[j]['plain'] + "</h5><hr/><div id='" + selectionGroundsCodes[i] + "' >  </div><hr/>");
-                                    break;
                                 }
+                            }
+
+
+                            //ajax callS to get criteria
+
+                            for (var counter = 0; counter < exclusionGroundsCodes.length; counter++) {
+
+                                let localCounter = counter;
+
+                                $.ajax({
+                                    type: "GET",
+                                    url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/getCertainCriteria/" + exclusionGroundsCodes[localCounter] + "",
+                                    beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                                    success: function (result) {
+                                        //console.log(result);
+
+                                        for (i = 0; i < result.length; i++) {
+                                            //append checkbox
+                                            var newCheckBox = document.createElement('input');
+                                            newCheckBox.type = 'checkbox';
+                                            newCheckBox.id = result[i]['id'];
+                                            newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name']), false);
+                                            newCheckBox.style.margin = "1%";
+                                            document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(newCheckBox);
+
+                                            //append criterion title
+                                            var node1 = document.createElement("span");
+                                            var textnode = document.createTextNode(result[i]['name']);
+                                            node1.appendChild(textnode);
+                                            node1.style.fontWeight = 'bold';
+                                            document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(node1);
+
+                                            //append criterion description
+                                            var node2 = document.createElement("p");
+                                            var textnode = document.createTextNode(result[i]['description']);
+                                            node2.appendChild(textnode);
+                                            document.getElementById(exclusionGroundsCodes[localCounter]).appendChild(node2);
+
+                                        }
+
+                                    },
+                                    error: function (error) {
+                                        console.log(error);
+
+                                    },
+                                });
 
                             }
+
+                        },
+                        error: function (error) {
+                            console.log(error);
+
+                        },
+                    });
+
+                },
+                error: function (error) {
+                    console.log(error);
+
+                },
+            });
+
+
+
+            //Selection Criteria
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/criteriaGroups",
+                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                success: function (result) {
+                    //console.log(result);
+
+                    //clone array
+                    criteriaGroupsCodes = result.slice();
+                    selectionGroundsCodes = [];
+
+                    for (i = 0; i < criteriaGroupsCodes.length; i++) {
+                        if (criteriaGroupsCodes[i].includes("SELECTION")) {
+                            selectionGroundsCodes.push(criteriaGroupsCodes[i]);
                         }
+                    }
 
+                    // ajax call to convert codes to plain text
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/api/codelists/regulated/" + documentVersion + "/CriteriaType/codelist",
+                        beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                        success: function (result) {
+                            //console.log(result);
 
-                        //ajax callS to get criteria
+                            criteriaGroupsCodelist = JSON.parse(result);
 
-                        for (var counter = 0; counter < selectionGroundsCodes.length; counter++) {
+                            for (i = 0; i < selectionGroundsCodes.length; i++) {
+                                for (j = 0; j < criteriaGroupsCodelist.length; j++) {
 
-                            let localCounter = counter;
-
-                            $.ajax({
-                                type: "GET",
-                                url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/getCertainCriteria/" + selectionGroundsCodes[localCounter] + "",
-                                beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
-                                success: function (result) {
-                                    //console.log(result);
-
-                                    for (i = 0; i < result.length; i++) {
-                                        //append checkbox
-                                        var newCheckBox = document.createElement('input');
-                                        newCheckBox.type = 'checkbox';
-                                        newCheckBox.id = result[i]['id'];
-                                        newCheckBox.classList.add("selectionCheckBoxes");
-                                        newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name'], result[i]['id']), false);
-                                        newCheckBox.style.margin = "1%";
-                                        document.getElementById(selectionGroundsCodes[localCounter]).appendChild(newCheckBox);
-
-                                        //append criterion title
-                                        var node1 = document.createElement("span");
-                                        var textnode = document.createTextNode(result[i]['name']);
-                                        node1.appendChild(textnode);
-                                        node1.style.fontWeight = 'bold';
-                                        document.getElementById(selectionGroundsCodes[localCounter]).appendChild(node1);
-
-                                        //append criterion description
-                                        var node2 = document.createElement("p");
-                                        var textnode = document.createTextNode(result[i]['description']);
-                                        node2.appendChild(textnode);
-                                        document.getElementById(selectionGroundsCodes[localCounter]).appendChild(node2);
-
+                                    if (selectionGroundsCodes[i] == criteriaGroupsCodelist[j]['code']) {
+                                        $("#selectionGrounds").append("<h5 style='color:green;'>" + criteriaGroupsCodelist[j]['plain'] + "</h5><hr/><div id='" + selectionGroundsCodes[i] + "' >  </div><hr/>");
+                                        break;
                                     }
 
-                                },
-                                error: function (error) {
-                                    console.log(error);
+                                }
+                            }
 
-                                },
-                            });
 
-                        }
+                            //ajax callS to get criteria
 
-                    },
-                    error: function (error) {
-                        console.log(error);
+                            for (var counter = 0; counter < selectionGroundsCodes.length; counter++) {
 
-                    },
-                });
+                                let localCounter = counter;
 
-            },
-            error: function (error) {
-                console.log(error);
+                                $.ajax({
+                                    type: "GET",
+                                    url: "http://localhost:8080/api/criteria/regulated/" + documentVersion + "/getCertainCriteria/" + selectionGroundsCodes[localCounter] + "",
+                                    beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+                                    success: function (result) {
+                                        //console.log(result);
 
-            },
-        });
+                                        for (i = 0; i < result.length; i++) {
+                                            //append checkbox
+                                            var newCheckBox = document.createElement('input');
+                                            newCheckBox.type = 'checkbox';
+                                            newCheckBox.id = result[i]['id'];
+                                            newCheckBox.classList.add("selectionCheckBoxes");
+                                            newCheckBox.addEventListener("click", setCriterionAsSelected(result[i]['name'], result[i]['id']), false);
+                                            newCheckBox.style.margin = "1%";
+                                            document.getElementById(selectionGroundsCodes[localCounter]).appendChild(newCheckBox);
+
+                                            //append criterion title
+                                            var node1 = document.createElement("span");
+                                            var textnode = document.createTextNode(result[i]['name']);
+                                            node1.appendChild(textnode);
+                                            node1.style.fontWeight = 'bold';
+                                            document.getElementById(selectionGroundsCodes[localCounter]).appendChild(node1);
+
+                                            //append criterion description
+                                            var node2 = document.createElement("p");
+                                            var textnode = document.createTextNode(result[i]['description']);
+                                            node2.appendChild(textnode);
+                                            document.getElementById(selectionGroundsCodes[localCounter]).appendChild(node2);
+
+                                        }
+
+                                    },
+                                    error: function (error) {
+                                        console.log(error);
+
+                                    },
+                                });
+
+                            }
+
+                        },
+                        error: function (error) {
+                            console.log(error);
+
+                        },
+                    });
+
+                },
+                error: function (error) {
+                    console.log(error);
+
+                },
+            });
+
+        }
 
         //add criteria into criteria list depend on doc version
         $.ajax({
@@ -458,6 +519,8 @@ $(document).ready(function () {
 
     //add procurement information and display exclusion criteria
     $("#next3Btn").click(function () {
+        let username = $("#username").val();
+        let password = $("#loginPassword").val();
 
         //append information into the espd template
 
@@ -479,13 +542,38 @@ $(document).ready(function () {
         espdRequestAsJson['cadetails']['procurementProcedureFileReferenceNo'] = $("#fileReferenceNumber").val();
 
         espdRequestAsJson['cadetails']['caofficialName'] = $("#ProcurerName").val();
-        espdRequestAsJson['cadetails']['cacountry'] = 'GR';
+        espdRequestAsJson['cadetails']['cacountry'] = $("#Country").val();
 
         espdRequestAsJson['cadetails']['webSiteURI'] = $("#ProcurerWebsite").val();
         espdRequestAsJson['cadetails']['postalAddress']['addressLine1'] = $("#ProcurerStreetAndNumber").val();
         espdRequestAsJson['cadetails']['postalAddress']['city'] = $("#ProcurerCity").val();
         espdRequestAsJson['cadetails']['postalAddress']['postCode'] = $("#ProcurerPostcode").val();
-        espdRequestAsJson['cadetails']['postalAddress']['countryCode'] = 'GR';
+
+        //set country code
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/api/codelists/regulated/v1/CountryIdentification/codelist",
+            beforeSend: function (xhr) { xhr.setRequestHeader("Authorization", "Basic " + btoa(username + ":" + password)); },
+            success: function (result) {
+                //console.log(result);
+
+                let counties = JSON.parse(result);
+
+                for (let i = 0; i < counties.length; i++) {
+
+                    if (counties[i]['plain'] == $("#Country").val()) {
+                        espdRequestAsJson['cadetails']['postalAddress']['countryCode'] = counties[i]['code'];
+                        break;
+                    }
+
+                }
+
+            },
+            error: function (error) {
+                console.log("Something went wrong");
+            },
+        });
+
 
         espdRequestAsJson['cadetails']['contactingDetails']['contactPointName'] = $("#ProcurerContactPerson").val();
         espdRequestAsJson['cadetails']['contactingDetails']['faxNumber'] = $("#ProcurerFax").val();
@@ -1047,7 +1135,7 @@ $(document).ready(function () {
         $('#ProcurerStreetAndNumber').val(data['cadetails']['postalAddress']['addressLine1']);
         $('#ProcurerCity').val(data['cadetails']['postalAddress']['city']);
         $('#ProcurerPostcode').val(data['cadetails']['postalAddress']['postCode']);
-        $('#ProcurerCountry').val('GR');
+        $('#ProcurerCountry').val(data['cadetails']['cacountry']);
 
         $('#ProcurerContactPerson').val(data['cadetails']['contactingDetails']['contactPointName']);
         $('#ProcurerFax').val(data['cadetails']['contactingDetails']['faxNumber']);
@@ -1063,13 +1151,14 @@ $(document).ready(function () {
         $('#ProcurerStreetAndNumber').val(informationAboutUser[8]['addressLine1']);
         $('#ProcurerCity').val(informationAboutUser[9]['city']);
         $('#ProcurerPostcode').val(informationAboutUser[10]['postcode']);
-        $('#ProcurerCountry').val('GR');
+        $('#ProcurerCountry').val(informationAboutUser[3]['cacountry']);
 
 
         $('#ProcurerContactPerson').val(informationAboutUser[4]['contactPointName']);
         $('#ProcurerFax').val(informationAboutUser[5]['faxNumber']);
         $('#ProcurerTelephone').val(informationAboutUser[6]['telephoneNumber']);
         $('#ProcurerEmail').val(informationAboutUser[7]['emailAddress']);
+
     }
 
     function saveEspd(username, password, documentVersion, espdRequestAsJson) {
@@ -1141,6 +1230,54 @@ $(document).ready(function () {
         });
 
     }
+
+    //go back buttons
+    $('#back2Btn').click(function () {
+
+        $('#InfoDiv').hide();
+        $('#WelcomeDiv').show();
+
+    })
+
+    $('#back3Btn').click(function () {
+
+        $('#ProcurmentInfoDiv').hide();
+        $('#InfoDiv').show();
+
+        gobackBtn3isPressed = true;
+
+    })
+
+    $('#back4Btn').click(function () {
+
+        $('#ExclusionGroundsDiv').hide();
+        $('#ProcurmentInfoDiv').show();
+
+    })
+
+    $('#back5Btn').click(function () {
+
+        $('#SelectionGroundsDiv').hide();
+        $('#ExclusionGroundsDiv').show();
+
+    })
+
+    $('#back12Btn').click(function () {
+
+        $('#UploadEspdDiv').hide();
+        $('#WelcomeDiv').show();
+
+    })
+
+
+    $('#back13Btn').click(function () {
+
+        $('#viewEspd').hide();
+        $('#WelcomeDiv').show();
+
+    })
+
+
 
 
 });

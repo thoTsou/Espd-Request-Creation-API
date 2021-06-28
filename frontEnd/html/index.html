@@ -32,7 +32,7 @@
 <body>
     <!-- NavBar-->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="index.html">ESPD Service</a>
+        <a class="navbar-brand" href="index.html" style="color: green;">ESPD Service</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -40,10 +40,15 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="./index.html" style="color: black;">Login</a>
+                    <a class="nav-link" href="./index.html" style="color: black;display: block;"
+                        id="loginNavBar">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="./register.html" style="color: black;" id="navBarRegisterButton">Register</a>
+                    <a class="nav-link" href="./register.html" style="color: black;display: block;"
+                        id="navBarRegisterButton">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" style="color: green;display: none;font-size: large;" id="navBarWelcomeUser"></a>
                 </li>
             </ul>
         </div>
@@ -91,7 +96,8 @@
                 </div>
                 <div class="card-footer">
                     <div class="d-flex justify-content-center links">
-                        Don't have an account? <a href="./register.html" style="color: yellow;" id="registerButton"><b>Register Now</b></a>
+                        Don't have an account? <a href="./register.html" style="color: yellow;"
+                            id="registerButton"><b>Register Now</b></a>
                     </div>
                 </div>
             </div>
@@ -245,16 +251,26 @@
                         <div id="collapseTwo" class="collapse show expand" aria-labelledby="headingTwo"
                             data-parent="#accordion">
                             <div class="card-body">
-                                <select name="Country" id="Country">
-                                    <option value="Greece">Greece</option>
+                                <select name="Country" id="Country" style="width: 25%;">
+                                    <option disabled selected value> -- Select -- </option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
                 </div><br />
-                <button type="button" class="btn btn-success" id="next2Btn">Next</button>
+
             </div>
+        </div>
+        <div class="row justify-content-around">
+            <div class="col-2">
+                <button type="button" class="btn btn-danger" id="back2Btn">Back</button>
+            </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-success" id="next2Btn" style="margin-left: 1%;">Next</button>
+            </div>
+
         </div>
     </div>
 
@@ -356,9 +372,18 @@
                         </div>
                     </div>
                 </div><br />
-                <button type="button" class="btn btn-success" id="next3Btn">Next</button>
 
             </div>
+        </div>
+        <div class="row justify-content-around">
+            <div class="col-2">
+                <button type="button" class="btn btn-danger" id="back3Btn">Back</button>
+            </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-success" id="next3Btn" style="margin-left: 1%;">Next</button>
+            </div>
+
         </div>
     </div>
 
@@ -370,10 +395,15 @@
                 <h4 style="text-align: center;color: red;"><u>Exclusion Grounds</u></h4><br /><br />
             </div>
         </div>
-        <div class="row" style="text-align: center;">
-            <div class="col-lg-12 col-md-12 col-sm-12">
-                <button type="button" class="btn btn-success" id="next4Btn" style="margin-bottom: 2%;">Next</button>
+        <div class="row justify-content-around">
+            <div class="col-2">
+                <button type="button" class="btn btn-danger" id="back4Btn">Back</button>
             </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-success" id="next4Btn" style="margin-left: 1%;">Next</button>
+            </div>
+
         </div>
     </div>
 
@@ -382,13 +412,18 @@
         id="SelectionGroundsDiv">
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12" id="selectionGrounds">
-                <h4 style="text-align: center;color: green;"><u>Selection Grounds</u></h4><br /><br />
+                <h4 style="text-align: center;color: green;"><u>Selection Criteria</u></h4><br /><br />
             </div>
         </div>
-        <div class="row" style="text-align: center;">
-            <div class="col-lg-12 col-md-12 col-sm-12">
-                <button type="button" class="btn btn-success" id="next5Btn" style="margin-bottom: 2%;">Next</button>
+        <div class="row justify-content-around">
+            <div class="col-2">
+                <button type="button" class="btn btn-danger" id="back5Btn">Back</button>
             </div>
+
+            <div class="col-2">
+                <button type="button" class="btn btn-success" id="next5Btn" style="margin-left: 1%;">Next</button>
+            </div>
+
         </div>
     </div>
 
@@ -429,7 +464,7 @@
 
     <!-- UPLOAD ESPD-->
 
-    <!-- select documetn version and choose file choose file -->
+    <!-- select document version and choose file  -->
     <div class="container" style="display:none;margin-top: 3%;margin-bottom: 3%;" id="UploadEspdDiv">
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12">
@@ -487,6 +522,12 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <br/>
+                <button type="button" class="btn btn-danger" id="back12Btn">Back</button>
+            </div>
+        </div>
     </div>
 
     <!-- no radio is pressed (for what would you like to do ?) -->
@@ -527,6 +568,12 @@
                     </tbody>
                 </table>
 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <br/>
+                <button type="button" class="btn btn-danger" id="back13Btn">Back</button>
             </div>
         </div>
     </div>
